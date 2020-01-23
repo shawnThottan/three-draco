@@ -1,0 +1,19 @@
+{
+  "name": "three-draco",
+  "version": "1.0.0",
+  "description": "three.js demo",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:OmegaShAwn/three-draco.git"
+  },
+  "author": "Shawn S. Thottan",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3",
+    "nodemon": "^2.0.2"
+  }
+}
