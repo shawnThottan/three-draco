@@ -13,15 +13,13 @@ controls.target = new THREE.Vector3(500, 1000, 0);
 controls.update();
 
 const loader = new THREE.GLTFLoader();
-const dracoLoader = new THREE.DRACOLoader();
-dracoLoader.setDecoderPath( '/libs/decoder/draco_decoder.js' );
-
-loader.setDRACOLoader( dracoLoader );
 
 // loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
 loader.load('assets/compare.gltf',
-	gltf => {
-		scene.add(gltf.scene);
+	({ scene: importedScene }) => {
+		// console.log(dumpObject(importedScene).join('\n'));
+		// console.log(importedScene);
+		scene.add(importedScene);
 		renderer.render(scene, camera);
 	},
 	xhr => {},
@@ -35,6 +33,9 @@ const animate = () => {
 	if (zDis < 50 && prevZDis > 50) {
 		prevZDis = zDis;
 		// TODO: decompress accordingly
+	} else if (zDis < 100 && prevZDis < 100) {
+		prevZDis = zDis;
+		// TODO: compress accordingly
 	} else if (zDis < 100 && prevZDis > 100) {
 		prevZDis = zDis;
 		// TODO: decompress accordingly
@@ -43,3 +44,10 @@ const animate = () => {
 };
 	
 animate();
+
+
+window.addEventListener('resize', () => {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+  	},false);
