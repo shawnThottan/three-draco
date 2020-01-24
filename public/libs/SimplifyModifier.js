@@ -8,10 +8,12 @@
  *    - http://www.melax.com/polychop/
  */
 
-const Geometry = THREE.Geometry;
-const Vector3 = THREE.Vector3;
-const Float32BufferAttribute = THREE.Float32BufferAttribute;
-const BufferGeometry = THREE.BufferGeometry;
+const {
+	Geometry,
+	Vector3,
+	Float32BufferAttribute,
+	BufferGeometry
+} = THREE;
 
 var SimplifyModifier = function () {};
 
@@ -449,8 +451,7 @@ var SimplifyModifier = function () {};
 
 			if ( ! nextVertex ) {
 
-				console.log( 'THREE.SimplifyModifier: No next vertex' );
-				break;
+				throw 'THREE.SimplifyModifier: No next vertex';
 
 			}
 
