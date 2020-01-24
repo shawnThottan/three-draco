@@ -1,80 +1,3 @@
-const compress = (indices, vertices, normals, method = 'sequential') => {
-    const mesh = {
-        indices : new Uint32Array(indices),
-        vertices : new Float32Array(vertices),
-        normals : new Float32Array(normals)
-    };
-      
-    const encoderModule = DracoEncoderModule();
-    const encoder = new encoderModule.Encoder();
-    const meshBuilder = new encoderModule.MeshBuilder();
-    const dracoMesh = new encoderModule.Mesh();
-
-    const numFaces = mesh.indices.length / 3;
-    const numPoints = mesh.vertices.length;
-    meshBuilder.AddFacesToMesh(dracoMesh, numFaces, mesh.indices);
-
-    meshBuilder.AddFloatAttributeToMesh(dracoMesh, encoderModule.POSITION,
-        numPoints, 3, mesh.vertices);
-    if (mesh.hasOwnProperty('normals')) {
-        meshBuilder.AddFloatAttributeToMesh(
-        dracoMesh, encoderModule.NORMAL, numPoints, 3, mesh.normals);
-    }
-    if (mesh.hasOwnProperty('colors')) {
-        meshBuilder.AddFloatAttributeToMesh(
-        dracoMesh, encoderModule.COLOR, numPoints, 3, mesh.colors);
-    }
-    if (mesh.hasOwnProperty('texcoords')) {
-        meshBuilder.AddFloatAttributeToMesh(
-        dracoMesh, encoderModule.TEX_COORD, numPoints, 3, mesh.texcoords);
-    }
-      
-    if (method === "edgebreaker") {
-        encoder.SetEncodingMethod(encoderModule.MESH_EDGEBREAKER_ENCODING);
-    } else if (method === "sequential") {
-        encoder.SetEncodingMethod(encoderModule.MESH_SEQUENTIAL_ENCODING);
-    }
-      
-    const encodedData = new encoderModule.DracoInt8Array();
-    // Use default encoding setting.
-    const encodedLen = encoder.EncodeMeshToDracoBuffer(dracoMesh, encodedData);
-    encoderModule.destroy(dracoMesh);
-    encoderModule.destroy(encoder);
-    encoderModule.destroy(meshBuilder);
-
-    return encodedLen;
-}
-
-const decompress = (byteArray) => {
-    // Create the Draco decoder.
-    const decoderModule = DracoDecoderModule();
-    const buffer = new decoderModule.DecoderBuffer();
-    buffer.Init(byteArray, byteArray.length);
-
-    // Create a buffer to hold the encoded data.
-    const decoder = new decoderModule.Decoder();
-    const geometryType = decoder.GetEncodedGeometryType(buffer);
-
-    // Decode the encoded geometry.
-    let outputGeometry;
-    let status;
-    if (geometryType == decoderModule.TRIANGULAR_MESH) {
-        outputGeometry = new decoderModule.Mesh();
-        status = decoder.DecodeBufferToMesh(buffer, outputGeometry);
-    } else {
-        outputGeometry = new decoderModule.PointCloud();
-        status = decoder.DecodeBufferToPointCloud(buffer, outputGeometry);
-    }
-
-    // You must explicitly delete objects created from the DracoDecoderModule
-    // or Decoder.
-    decoderModule.destroy(outputGeometry);
-    decoderModule.destroy(decoder);
-    decoderModule.destroy(buffer);
-
-    return outputGeometry;
-}
-
 const dumpObject = (obj, lines = [], isLast = true, prefix = '') => {
     const localPrefix = isLast ? '└─' : '├─';
     lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
@@ -85,4 +8,28 @@ const dumpObject = (obj, lines = [], isLast = true, prefix = '') => {
         dumpObject(child, lines, isLast, newPrefix);
     });
     return lines;
+}
+
+const getDistance = () => {
+    camera.updateMatrixWorld();
+    var point1 = camera.position.clone();
+    var point2 = new THREE.Vector3(0, 1000, 0);
+    return point1.distanceTo(point2);
+}
+
+const modify = ratio => {
+    var modifier = new SimplifyModifier();
+    let shirtGeometry = scene.children[2].children[2].children[0].geometry;
+    console.log(shirtGeometry);
+    shirtGeometry = modifier.modify(shirtGeometry, shirtGeometry.attributes.position.count * ratio);
+    console.log(shirtGeometry)
+    scene.children[2].children[2].children[0].geometry = shirtGeometry;
+    /*
+    let collarGeometry = scene.children[2].children[2].children[1].geometry;
+    collarGeometry = modifier.modify(collarGeometry, collarGeometry.attributes.position.length * ratio);
+    scene.children[2].children[2].children[1].geometry = collarGeometry;
+    let bodyGeometry = scene.children[2].children[3].geometry;
+    bodyGeometry = modifier.modify(bodyGeometry, bodyGeometry.attributes.position.length * ratio);
+    scene.children[2].children[3].geometry = bodyGeometry;
+    */
 }
