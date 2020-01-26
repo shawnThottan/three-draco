@@ -43,19 +43,23 @@ const getDistance = () => {
 // converts the high quality object to a simpler mesh based on the distance from the camera.
 const modifier = new SimplifyModifier();
 let quality = 1;
-const modify = (scene) => scene.traverse(child => {
-    if (child.type == 'Mesh') {
-        const { geometry, material } = child;
-        material.flatShading = true;
-        child.material = material.clone();
-        try {
-            const geo = modifier.modify(geometry, Math.floor(geometry.attributes.position.count * quality ));
-            child.geometry = geo;
-        } catch(err) {
-            console.log(err);
+const modify = (scene) => {
+    console.log("QUALITY: " + Math.floor((1 - quality) * 10) / 10);
+    scene.traverse(child => {
+        if (child.name == 'Node-Mesh_0') {  // Only modifies the shirts.
+        // if (child.type == 'Mesh') {
+            const { geometry, material } = child;
+            material.flatShading = true;
+            child.material = material.clone();
+            try {
+                const geo = modifier.modify(geometry, Math.floor(geometry.attributes.position.count * quality ));
+                child.geometry = geo;
+            } catch(err) {
+                console.log(err);
+            }
         }
-    }
-});
+    });
+};
 
 // adds a debounce to delay the simplification process.
 let debounceTimer;

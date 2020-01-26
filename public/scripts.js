@@ -20,14 +20,14 @@ controls.update();
 let originalScene;
 let sceneName = 'impScene';
 
-loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
-// loader.load('assets/compare.gltf',
+// loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
+loader.load('assets/compare.gltf',
 	({ scene: importedScene }) => {
 		importedScene.name = sceneName;
 		center(importedScene);
 		originalScene = importedScene.clone();
 		scene.add(importedScene);
-		// console.log(dumpObject(scene).join('\n'));
+		console.log(dumpObject(scene).join('\n'));
 		// console.log(scene);
 		renderer.render(scene, camera);
 		animate();
