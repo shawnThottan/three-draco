@@ -44,7 +44,7 @@ const getDistance = () => {
 const modifier = new SimplifyModifier();
 let quality = 1;
 const modify = (scene) => {
-    console.log("QUALITY: " + Math.floor((1 - quality) * 10) / 10);
+    console.log("QUALITY REDUCTION: " + quality);
     scene.traverse(child => {
         if (child.name == 'Node-Mesh_0') {  // Only modifies the shirts.
         // if (child.type == 'Mesh') {

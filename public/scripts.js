@@ -20,8 +20,11 @@ controls.update();
 let originalScene;
 let sceneName = 'impScene';
 
-// loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
-loader.load('assets/compare.gltf',
+// shows the loading indicator
+document.getElementById('loading').style.display = 'block';
+
+loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
+// loader.load('assets/compare.gltf',
 	({ scene: importedScene }) => {
 		importedScene.name = sceneName;
 		center(importedScene);
@@ -31,6 +34,8 @@ loader.load('assets/compare.gltf',
 		// console.log(scene);
 		renderer.render(scene, camera);
 		animate();
+		// hides the loading indicator
+		document.getElementById('loading').style.display = 'none';
 	},
 	xhr => {},
 	error => console.log(error));
@@ -42,9 +47,12 @@ const animate = () => {
 	// console.log(currDis, qDistance, quality)
 	if (currDis <= qDistance && quality !== 1) {
 		quality = 1;
-		debounce(() => swapWithOriginal());
+		debounce(() => {
+			console.log("QUALITY REDUCTION: 0");
+			swapWithOriginal();
+		});
 	} else if (currDis > qDistance) {
-		let currQuality = Math.floor(10 * ((currDis - qDistance) / (initCamDistance - qDistance))) / 10;
+		let currQuality = (currDis - qDistance) / (initCamDistance - qDistance);
 		if (currQuality < .1) currQuality = .1;
 		if (currQuality > .9) currQuality = .9;
 		if (quality != currQuality) {
