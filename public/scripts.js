@@ -17,15 +17,10 @@ scene.add(camera);
 controls.target = new THREE.Vector3(0, 0, 0);
 controls.update();
 
-let originalScene;
-let sceneName = 'impScene';
-
-loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
-// loader.load('assets/compare.gltf',
+// loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
+loader.load('assets/compare.gltf',
 	({ scene: importedScene }) => {
-		importedScene.name = sceneName;
 		center(importedScene);
-		originalScene = importedScene.clone();
 		scene.add(importedScene);
 		// console.log(dumpObject(scene).join('\n'));
 		// console.log(scene);
@@ -35,23 +30,32 @@ loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc
 	xhr => {},
 	error => console.log(error));
 
+let quality = 0;
+let prevQuality = 1;
 const animate = () => {
 	requestAnimationFrame(animate);
 	controls.update();
 	const currDis = getDistance();
-	// console.log(currDis, qDistance, quality)
-	if (currDis <= qDistance && quality !== 1) {
-		quality = 1;
-		debounce(() => swapWithOriginal());
-	} else if (currDis > qDistance) {
-		let currQuality = Math.floor(10 * ((currDis - qDistance) / (initCamDistance - qDistance))) / 10;
-		if (currQuality < .1) currQuality = .1;
-		if (currQuality > .9) currQuality = .9;
-		if (quality != currQuality) {
-			quality = currQuality;
+	let currQuality = Math.floor(10 * ((currDis - qDistance) / (initCamDistance - qDistance))) / 10;
+	if (currQuality < .1) currQuality = .1;
+	if (currQuality > .9) currQuality = .9;
+	if (quality !== currQuality && prevQuality !== currQuality) {
+		prevQuality = currQuality;
+		const ratio = Math.floor(Math.abs((quality - currQuality) / .3)) / 10;
+		if (!ratio) return;
+		if (quality > currQuality) {
+			console.log("CURRQ", currQuality, quality)
 			debounce(() => {
-				swapWithOriginal();
-				modify(scene);
+				quality = currQuality;
+				console.log("unsimplifiying", ratio);
+				unSimplify(scene, ratio);
+			});
+		} else {
+			console.log("CURRQ", currQuality, quality)
+			debounce(() => {
+				quality = currQuality;
+				console.log("simplifiying", ratio);
+				simplify(scene, ratio);
 			});
 		}
 	}

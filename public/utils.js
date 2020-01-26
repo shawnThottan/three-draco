@@ -28,12 +28,6 @@ const center = (scene) => {
     camera.position.set(0, 0, initCamDistance);
 }
 
-// replaces the simplified object with the original high quality object.
-const swapWithOriginal = () => {
-    scene.remove(scene.getObjectByName(sceneName));
-    scene.add(originalScene.clone());
-}
-
 // returns the distance from the bounding box to the camera.
 const getDistance = () => {
     camera.updateMatrixWorld();
@@ -42,14 +36,13 @@ const getDistance = () => {
 
 // converts the high quality object to a simpler mesh based on the distance from the camera.
 const modifier = new SimplifyModifier();
-let quality = 1;
-const modify = (scene) => scene.traverse(child => {
+const simplify = (scene, ratio) => scene.traverse(child => {
     if (child.type == 'Mesh') {
         const { geometry, material } = child;
         material.flatShading = true;
         child.material = material.clone();
         try {
-            const geo = modifier.modify(geometry, Math.floor(geometry.attributes.position.count * quality ));
+            const geo = modifier.modify(geometry, Math.floor(geometry.attributes.position.count * 2.5 * ratio));
             child.geometry = geo;
         } catch(err) {
             console.log(err);
@@ -57,9 +50,25 @@ const modify = (scene) => scene.traverse(child => {
     }
 });
 
+// converts the low quality object to a more polygon rich mesh based on the distance from the camera.
+const unSimplify = (scene, ratio) => {
+    const unModifier = new SubdivisionModifier(ratio);
+    scene.traverse(child => {
+        if (child.type == 'Mesh') {
+            try {
+                geometry = unModifier.modify(child.geometry);
+                child.geometry = new THREE.BufferGeometry().fromGeometry(geometry);
+                console.log(child)
+            } catch(err) {
+                console.log(err);
+            }
+        }
+    });
+}
+
 // adds a debounce to delay the simplification process.
 let debounceTimer;
-const debounce = func => {  
+const debounce = func => {
     clearTimeout(debounceTimer) 
     debounceTimer = setTimeout(() => func(), 300);
 }  
