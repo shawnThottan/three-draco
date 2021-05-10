@@ -23,7 +23,7 @@ let sceneName = 'impScene';
 // shows the loading indicator
 document.getElementById('loading').style.display = 'block';
 
-loader.load('https://cors-anywhere.herokuapp.com/https://drive.google.com/u/0/uc?id=1eX0fMaxfNP5hVaftnZngREdFfF8dhONI&export=download',
+loader.load('/assets/compare.gltf',
 // loader.load('assets/compare.gltf',
 	({ scene: importedScene }) => {
 		importedScene.name = sceneName;
